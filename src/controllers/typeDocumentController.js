@@ -1,7 +1,7 @@
-const prisma = require('../config/prisma-client');
+import prisma from '../config/prisma-client.js';
 
 // Lire tous les types de documents
-exports.getTypesDocument = async (req, res) => {
+export const getTypesDocument = async (req, res) => {
   try {
     const typesDocument = await prisma.typeDocument.findMany();
     res.json(typesDocument);
@@ -11,14 +11,14 @@ exports.getTypesDocument = async (req, res) => {
 };
 
 // Créer un type de document
-exports.createTypeDocument = async (req, res) => {
+export const createTypeDocument = async (req, res) => {
   try {
     const { nom, description, id_Utilisateur } = req.body;
     const newTypeDocument = await prisma.typeDocument.create({
       data: {
         nom,
         description,
-        id_Utilisateur
+        id_Utilisateur,
       },
     });
     res.json(newTypeDocument);
@@ -28,7 +28,7 @@ exports.createTypeDocument = async (req, res) => {
 };
 
 // Mettre à jour un type de document
-exports.updateTypeDocument = async (req, res) => {
+export const updateTypeDocument = async (req, res) => {
   try {
     const { id } = req.params;
     const { nom, description, id_Utilisateur } = req.body;
@@ -43,7 +43,7 @@ exports.updateTypeDocument = async (req, res) => {
 };
 
 // Supprimer un type de document
-exports.deleteTypeDocument = async (req, res) => {
+export const deleteTypeDocument = async (req, res) => {
   try {
     const { id } = req.params;
     await prisma.typeDocument.delete({

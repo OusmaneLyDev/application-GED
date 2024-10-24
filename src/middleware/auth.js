@@ -1,14 +1,17 @@
-const jwt = require('jsonwebtoken');
+// app.js
+import express from 'express';
+import authRoutes from './routes/auth.js'; // Exemple de routes d'authentification
+import { authenticate } from './middlewares/auth.js';
 
-exports.authenticate = (req, res, next) => {
-  const token = req.header('Authorization');
-  if (!token) return res.status(401).send('Accès refusé. Pas de token fourni.');
+const app = express();
+const PORT = process.env.PORT || 3050;
 
-  try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    req.utilisateur = decoded;
-    next();
-  } catch (error) {
-    res.status(400).send('Token invalide.');
-  }
-};
+app.use(express.json());
+app.use('/auth', authRoutes);
+
+// Routes protégées
+app.get('/utilisateurs', authenticate, getUtilisateurs); // Ajoute le middleware ici
+
+app.listen(PORT, () => {
+  console.log(`Serveur démarré sur le port ${PORT}`);
+});

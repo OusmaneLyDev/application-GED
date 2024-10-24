@@ -1,7 +1,7 @@
-const prisma = require('../config/prisma-client');
+import prisma from '../config/prisma-client.js';
 
 // Lire tous les statuts de documents
-exports.getStatutsDocument = async (req, res) => {
+export const getStatutsDocument = async (req, res) => {
   try {
     const statutsDocument = await prisma.statutDocument.findMany();
     res.json(statutsDocument);
@@ -11,14 +11,14 @@ exports.getStatutsDocument = async (req, res) => {
 };
 
 // Créer un statut de document
-exports.createStatutDocument = async (req, res) => {
+export const createStatutDocument = async (req, res) => {
   try {
     const { nom, description, id_Utilisateur } = req.body;
     const newStatutDocument = await prisma.statutDocument.create({
       data: {
         nom,
         description,
-        id_Utilisateur
+        id_Utilisateur,
       },
     });
     res.json(newStatutDocument);
@@ -28,7 +28,7 @@ exports.createStatutDocument = async (req, res) => {
 };
 
 // Mettre à jour un statut de document
-exports.updateStatutDocument = async (req, res) => {
+export const updateStatutDocument = async (req, res) => {
   try {
     const { id } = req.params;
     const { nom, description, id_Utilisateur } = req.body;
@@ -43,7 +43,7 @@ exports.updateStatutDocument = async (req, res) => {
 };
 
 // Supprimer un statut de document
-exports.deleteStatutDocument = async (req, res) => {
+export const deleteStatutDocument = async (req, res) => {
   try {
     const { id } = req.params;
     await prisma.statutDocument.delete({

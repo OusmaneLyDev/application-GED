@@ -1,30 +1,96 @@
-const { PrismaClient } = require('@prisma/client');
-const prisma = new PrismaClient();
+import prisma from '../config/prisma-client.js';
 
-exports.createDocument = async (req, res) => {
+const getDocuments = async (req, res) => {
   try {
-    const { titre, description, date_depot, id_utilisateur, id_typedocument, id_statutdocument } = req.body;
-    const document = await prisma.documents.create({
+    const documents = await prisma.document.findMany({
+      include: {
+        utilisateur: true,
+        typeDocument: true,
+        statutDocument: true,
+      },
+    });
+    res.json(documents);
+  } catch (error) {
+    res.status(500).json({ error: 'Erreur lors de la récupération des documents.' });
+  }
+};
+
+const getDocumentById = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const document = await prisma.document.findUnique({
+      where: { id: parseInt(id) },
+      include: {
+        utilisateur: true,
+        typeDocument: true,
+        statutDocument: true,
+      },
+    });
+    if (document) {
+      res.json(document);
+    } else {
+      res.status(404).json({ error: 'Document non trouvé.' });
+    }
+  } catch (error) {
+    res.status(500).json({ error: 'Erreur lors de la récupération du document.' });
+  }
+};
+
+const createDocument = async (req, res) => {
+  try {
+    const { titre, description, date_depot, id_Utilisateur, id_TypeDocument, id_StatutDocument } = req.body;
+    const newDocument = await prisma.document.create({
       data: {
         titre,
         description,
-        date_depot,
-        id_utilisateur,
-        id_typedocument,
-        id_statutdocument
-      }
+        date_depot: new Date(date_depot),
+        utilisateur: { connect: { id: id_Utilisateur } },
+        typeDocument: { connect: { id: id_TypeDocument } },
+        statutDocument: { connect: { id: id_StatutDocument } },
+      },
     });
-    res.status(201).json(document);
+    res.json(newDocument);
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    res.status(500).json({ error: 'Erreur lors de la création du document.' });
   }
 };
 
-exports.getDocuments = async (req, res) => {
+const updateDocument = async (req, res) => {
   try {
-    const documents = await prisma.documents.findMany();
-    res.status(200).json(documents);
+    const { id } = req.params;
+    const { titre, description, date_depot, id_Utilisateur, id_TypeDocument, id_StatutDocument } = req.body;
+    const updatedDocument = await prisma.document.update({
+      where: { id: parseInt(id) },
+      data: {
+        titre,
+        description,
+        date_depot: new Date(date_depot),
+        utilisateur: { connect: { id: id_Utilisateur } },
+        typeDocument: { connect: { id: id_TypeDocument } },
+        statutDocument: { connect: { id: id_StatutDocument } },
+      },
+    });
+    res.json(updatedDocument);
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    res.status(500).json({ error: 'Erreur lors de la mise à jour du document.' });
   }
 };
+
+const deleteDocument = async (req, res) => {
+  try {
+    const { id } = req.params;
+    await prisma.document.delete({
+      where: { id: parseInt(id) },
+    });
+    res.json({ message: 'Document supprimé avec succès.' });
+  } catch (error) {
+    res.status(500).json({ error: 'Erreur lors de la suppression du document.' });
+  }
+};
+export default {
+    getDocuments,
+    getDocumentById,
+    createDocument,
+    updateDocument,
+    deleteDocument
+  };
