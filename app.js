@@ -27,7 +27,7 @@ app.use((error, req, res, next) => {
   res.status(500).json({ message: 'Erreur du serveur' });
 });
 
-const port = process.env.PORT || 3050; 
+const port = process.env.PORT || 3051; 
 app.listen(port, () => {
   console.log(`Serveur démarré sur le port ${port}`);
 });

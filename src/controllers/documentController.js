@@ -1,6 +1,7 @@
 import prisma from '../config/prisma-client.js';
 
-const getDocuments = async (req, res) => {
+// Lire tous les documents
+export const getDocuments = async (req, res) => {
   try {
     const documents = await prisma.document.findMany({
       include: {
@@ -11,15 +12,17 @@ const getDocuments = async (req, res) => {
     });
     res.json(documents);
   } catch (error) {
-    res.status(500).json({ error: 'Erreur lors de la récupération des documents.' });
+    console.error("Erreur lors de la récupération des documents:", error);
+    res.status(500).json({ error: 'Erreur lors de la récupération des documents.', details: error.message });
   }
 };
 
-const getDocumentById = async (req, res) => {
+// Lire un document par ID
+export const getDocumentById = async (req, res) => {
   try {
     const { id } = req.params;
     const document = await prisma.document.findUnique({
-      where: { id: parseInt(id) },
+      where: { id: Number(id) },
       include: {
         utilisateur: true,
         typeDocument: true,
@@ -32,13 +35,21 @@ const getDocumentById = async (req, res) => {
       res.status(404).json({ error: 'Document non trouvé.' });
     }
   } catch (error) {
-    res.status(500).json({ error: 'Erreur lors de la récupération du document.' });
+    console.error("Erreur lors de la récupération du document:", error);
+    res.status(500).json({ error: 'Erreur lors de la récupération du document.', details: error.message });
   }
 };
 
-const createDocument = async (req, res) => {
+// Créer un nouveau document
+export const createDocument = async (req, res) => {
   try {
     const { titre, description, date_depot, id_Utilisateur, id_TypeDocument, id_StatutDocument } = req.body;
+
+    // Vérification des champs requis
+    if (!titre || !id_Utilisateur || !id_TypeDocument || !id_StatutDocument) {
+      return res.status(400).json({ error: 'Les champs "titre", "id_Utilisateur", "id_TypeDocument" et "id_StatutDocument" sont requis.' });
+    }
+
     const newDocument = await prisma.document.create({
       data: {
         titre,
@@ -49,18 +60,26 @@ const createDocument = async (req, res) => {
         statutDocument: { connect: { id: id_StatutDocument } },
       },
     });
-    res.json(newDocument);
+    res.status(201).json(newDocument);
   } catch (error) {
-    res.status(500).json({ error: 'Erreur lors de la création du document.' });
+    console.error("Erreur lors de la création du document:", error);
+    res.status(500).json({ error: 'Erreur lors de la création du document.', details: error.message });
   }
 };
 
-const updateDocument = async (req, res) => {
+// Mettre à jour un document existant
+export const updateDocument = async (req, res) => {
   try {
     const { id } = req.params;
     const { titre, description, date_depot, id_Utilisateur, id_TypeDocument, id_StatutDocument } = req.body;
+
+    // Vérification des champs requis
+    if (!titre) {
+      return res.status(400).json({ error: 'Le champ "titre" est requis.' });
+    }
+
     const updatedDocument = await prisma.document.update({
-      where: { id: parseInt(id) },
+      where: { id: Number(id) },
       data: {
         titre,
         description,
@@ -72,25 +91,31 @@ const updateDocument = async (req, res) => {
     });
     res.json(updatedDocument);
   } catch (error) {
-    res.status(500).json({ error: 'Erreur lors de la mise à jour du document.' });
+    console.error("Erreur lors de la mise à jour du document:", error);
+    res.status(500).json({ error: 'Erreur lors de la mise à jour du document.', details: error.message });
   }
 };
 
-const deleteDocument = async (req, res) => {
+// Supprimer un document
+export const deleteDocument = async (req, res) => {
   try {
     const { id } = req.params;
+
+    // Vérifier si le document existe avant de le supprimer
+    const document = await prisma.document.findUnique({
+      where: { id: Number(id) },
+    });
+
+    if (!document) {
+      return res.status(404).json({ error: 'Document non trouvé.' });
+    }
+
     await prisma.document.delete({
-      where: { id: parseInt(id) },
+      where: { id: Number(id) },
     });
     res.json({ message: 'Document supprimé avec succès.' });
   } catch (error) {
-    res.status(500).json({ error: 'Erreur lors de la suppression du document.' });
+    console.error("Erreur lors de la suppression du document:", error);
+    res.status(500).json({ error: 'Erreur lors de la suppression du document.', details: error.message });
   }
 };
-export default {
-    getDocuments,
-    getDocumentById,
-    createDocument,
-    updateDocument,
-    deleteDocument
-  };

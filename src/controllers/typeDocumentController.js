@@ -1,40 +1,72 @@
-import prisma from '../config/prisma-client.js';
+import prisma from '../config/prisma-client.js';  // Assure-toi que Prisma est bien configuré
 
-// Lire tous les types de documents
+// Récupérer tous les types de documents
 export const getTypesDocument = async (req, res) => {
   try {
     const typesDocument = await prisma.typeDocument.findMany();
-    res.json(typesDocument);
+    res.json(typesDocument);  // Envoi de la réponse avec les types de documents
   } catch (error) {
     res.status(500).json({ error: 'Erreur lors de la récupération des types de documents.' });
   }
 };
 
-// Créer un type de document
+// Récupérer un type de document par ID
+export const getTypeDocumentById = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const typeDocument = await prisma.typeDocument.findUnique({
+      where: { id: parseInt(id) }  // Recherche du type de document par ID
+    });
+    if (typeDocument) {
+      res.json(typeDocument);
+    } else {
+      res.status(404).json({ error: 'Type de document non trouvé.' });
+    }
+  } catch (error) {
+    res.status(500).json({ error: 'Erreur lors de la récupération du type de document.' });
+  }
+};
+
+// Créer un nouveau type de document
 export const createTypeDocument = async (req, res) => {
   try {
     const { nom, description, id_Utilisateur } = req.body;
+
+    // Vérifier la présence des champs requis
+    if (!nom || !id_Utilisateur) {
+      return res.status(400).json({ error: 'Les champs "nom" et "id_Utilisateur" sont requis.' });
+    }
+
+    // Créer un nouveau type de document avec les données fournies
     const newTypeDocument = await prisma.typeDocument.create({
       data: {
         nom,
         description,
-        id_Utilisateur,
-      },
+        id_Utilisateur: parseInt(id_Utilisateur)  // Assurez-vous que c'est bien un entier
+      }
     });
-    res.json(newTypeDocument);
+
+    res.status(201).json(newTypeDocument);
   } catch (error) {
-    res.status(500).json({ error: 'Erreur lors de la création du type de document.' });
+    console.error("Erreur détaillée:", error);
+    res.status(500).json({ error: 'Erreur lors de la création du type de document.', details: error.message });
   }
 };
 
-// Mettre à jour un type de document
+// Mettre à jour un type de document existant
 export const updateTypeDocument = async (req, res) => {
   try {
     const { id } = req.params;
-    const { nom, description, id_Utilisateur } = req.body;
+    const { nom, description } = req.body;
+
+    // Vérifier la présence des champs requis
+    if (!nom) {
+      return res.status(400).json({ error: 'Le champ "nom" est requis.' });
+    }
+
     const updatedTypeDocument = await prisma.typeDocument.update({
       where: { id: parseInt(id) },
-      data: { nom, description, id_Utilisateur },
+      data: { nom, description }
     });
     res.json(updatedTypeDocument);
   } catch (error) {
@@ -42,14 +74,23 @@ export const updateTypeDocument = async (req, res) => {
   }
 };
 
-// Supprimer un type de document
+// Supprimer un type de document (vérification des documents associés)
 export const deleteTypeDocument = async (req, res) => {
   try {
     const { id } = req.params;
-    await prisma.typeDocument.delete({
-      where: { id: parseInt(id) },
+
+    // Vérifier si des documents actifs sont associés à ce type de document
+    const documentsAssocies = await prisma.document.count({
+      where: { typeDocumentId: parseInt(id), statut: 'actif' }
     });
-    res.json({ message: 'Type de document supprimé avec succès.' });
+    if (documentsAssocies > 0) {
+      return res.status(400).json({ error: "Impossible de supprimer ce type de document. Il est associé à des documents actifs." });
+    }
+
+    await prisma.typeDocument.delete({
+      where: { id: parseInt(id) }
+    });
+    res.status(204).send();  // Pas de contenu à renvoyer
   } catch (error) {
     res.status(500).json({ error: 'Erreur lors de la suppression du type de document.' });
   }
