@@ -6,11 +6,13 @@ import utilisateurRoutes from './src/routes/utilisateurRoutes.js';
 import typeDocumentRoutes from './src/routes/typeDocumentRoutes.js';
 import statutDocumentRoutes from './src/routes/statutDocumentRoutes.js'; 
 
+import i18n from './config/i18n.js';
 dotenv.config();
 
 const app = express(); // Créer une instance d'Express
 const prisma = new PrismaClient(); // Initialiser Prisma Client
 
+app.use(i18n.init);
 app.use(express.json());
 
 app.use('/api/documents', documentRoutes);

@@ -1,4 +1,5 @@
 import prisma from '../config/prisma-client.js';
+import i18n from '../config/i18n.js';
 
 // Lire tous les documents
 export const getDocuments = async (req, res) => {
@@ -12,8 +13,8 @@ export const getDocuments = async (req, res) => {
     });
     res.json(documents);
   } catch (error) {
-    console.error("Erreur lors de la récupération des documents:", error);
-    res.status(500).json({ error: 'Erreur lors de la récupération des documents.', details: error.message });
+    console.error(i18n.__("fetchDocumentsError"), error);
+    res.status(500).json({ error: i18n.__("fetchDocumentsError"), details: error.message });
   }
 };
 
@@ -32,11 +33,11 @@ export const getDocumentById = async (req, res) => {
     if (document) {
       res.json(document);
     } else {
-      res.status(404).json({ error: 'Document non trouvé.' });
+      res.status(404).json({ error: i18n.__("documentNotFound") });
     }
   } catch (error) {
-    console.error("Erreur lors de la récupération du document:", error);
-    res.status(500).json({ error: 'Erreur lors de la récupération du document.', details: error.message });
+    console.error(i18n.__("fetchDocumentError"), error);
+    res.status(500).json({ error: i18n.__("fetchDocumentError"), details: error.message });
   }
 };
 
@@ -47,7 +48,7 @@ export const createDocument = async (req, res) => {
 
     // Vérification des champs requis
     if (!titre || !id_Utilisateur || !id_TypeDocument || !id_StatutDocument) {
-      return res.status(400).json({ error: 'Les champs "titre", "id_Utilisateur", "id_TypeDocument" et "id_StatutDocument" sont requis.' });
+      return res.status(400).json({ error: i18n.__("missingFields") });
     }
 
     const newDocument = await prisma.document.create({
@@ -62,8 +63,8 @@ export const createDocument = async (req, res) => {
     });
     res.status(201).json(newDocument);
   } catch (error) {
-    console.error("Erreur lors de la création du document:", error);
-    res.status(500).json({ error: 'Erreur lors de la création du document.', details: error.message });
+    console.error(i18n.__("createDocumentError"), error);
+    res.status(500).json({ error: i18n.__("createDocumentError"), details: error.message });
   }
 };
 
@@ -75,7 +76,7 @@ export const updateDocument = async (req, res) => {
 
     // Vérification des champs requis
     if (!titre) {
-      return res.status(400).json({ error: 'Le champ "titre" est requis.' });
+      return res.status(400).json({ error: i18n.__("missingTitle") });
     }
 
     const updatedDocument = await prisma.document.update({
@@ -91,8 +92,8 @@ export const updateDocument = async (req, res) => {
     });
     res.json(updatedDocument);
   } catch (error) {
-    console.error("Erreur lors de la mise à jour du document:", error);
-    res.status(500).json({ error: 'Erreur lors de la mise à jour du document.', details: error.message });
+    console.error(i18n.__("updateDocumentError"), error);
+    res.status(500).json({ error: i18n.__("updateDocumentError"), details: error.message });
   }
 };
 
@@ -107,15 +108,15 @@ export const deleteDocument = async (req, res) => {
     });
 
     if (!document) {
-      return res.status(404).json({ error: 'Document non trouvé.' });
+      return res.status(404).json({ error: i18n.__("documentNotFound") });
     }
 
     await prisma.document.delete({
       where: { id: Number(id) },
     });
-    res.json({ message: 'Document supprimé avec succès.' });
+    res.json({ message: i18n.__("deleteDocumentSuccess") });
   } catch (error) {
-    console.error("Erreur lors de la suppression du document:", error);
-    res.status(500).json({ error: 'Erreur lors de la suppression du document.', details: error.message });
+    console.error(i18n.__("deleteDocumentError"), error);
+    res.status(500).json({ error: i18n.__("deleteDocumentError"), details: error.message });
   }
 };
