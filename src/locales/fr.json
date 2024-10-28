@@ -1,0 +1,11 @@
+{
+    "fetchDocumentsError": "Erreur lors de la récupération des documents.",
+    "documentNotFound": "Document non trouvé.",
+    "createDocumentError": "Erreur lors de la création du document.",
+    "updateDocumentError": "Erreur lors de la mise à jour du document.",
+    "deleteDocumentSuccess": "Document supprimé avec succès.",
+    "deleteDocumentError": "Erreur lors de la suppression du document.",
+    "missingFields": "Des champs requis sont manquants.",
+    "missingTitle": "Le champ 'titre' est requis."
+  }
+  

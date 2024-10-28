@@ -1,0 +1,11 @@
+{
+    "fetchDocumentsError": "خطأ في استرجاع المستندات.",
+    "documentNotFound": "المستند غير موجود.",
+    "createDocumentError": "خطأ في إنشاء المستند.",
+    "updateDocumentError": "خطأ في تحديث المستند.",
+    "deleteDocumentSuccess": "تم حذف المستند بنجاح.",
+    "deleteDocumentError": "خطأ في حذف المستند.",
+    "missingFields": "الحقول المطلوبة مفقودة.",
+    "missingTitle": "حقل 'العنوان' مطلوب."
+  }
+  

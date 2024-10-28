@@ -1,15 +1,16 @@
 import prisma from '../config/prisma-client.js';
+import i18n from '../config/i18next.js';
 
 // Lire tous les utilisateurs
 export const getUtilisateurs = async (req, res) => {
   try {
     const utilisateurs = await prisma.utilisateur.findMany();
     if (utilisateurs.length === 0) {
-      return res.status(404).json({ message: 'Aucun utilisateur trouvé.' });
+      return res.status(404).json({ message: i18n.t('noUsersFound') });
     }
     res.status(200).json(utilisateurs);
   } catch (error) {
-    res.status(500).json({ error: 'Une erreur est survenue lors de la récupération des utilisateurs.' });
+    res.status(500).json({ error: i18n.t('getUsersError') });
   }
 };
 
@@ -21,11 +22,11 @@ export const getUtilisateurById = async (req, res) => {
       where: { id: parseInt(id) }
     });
     if (!utilisateur) {
-      return res.status(404).json({ message: 'Utilisateur non trouvé.' });
+      return res.status(404).json({ message: i18n.t('userNotFound') });
     }
     res.status(200).json(utilisateur);
   } catch (error) {
-    res.status(500).json({ error: 'Une erreur est survenue lors de la récupération de l\'utilisateur.' });
+    res.status(500).json({ error: i18n.t('getUserByIdError') });
   }
 };
 
@@ -36,7 +37,7 @@ export const createUtilisateur = async (req, res) => {
     
     // Vérifier la présence des champs requis
     if (!nom || !email || !mot_de_passe || !role) {
-      return res.status(400).json({ message: 'Tous les champs (nom, email, mot de passe, rôle) doivent être fournis.' });
+      return res.status(400).json({ message: i18n.t('allFieldsRequired') });
     }
 
     const newUtilisateur = await prisma.utilisateur.create({
@@ -44,14 +45,14 @@ export const createUtilisateur = async (req, res) => {
     });
 
     res.status(201).json({
-      message: 'Utilisateur créé avec succès.',
+      message: i18n.t('userCreatedSuccess'),
       utilisateur: newUtilisateur
     });
   } catch (error) {
     if (error.code === 'P2002' && error.meta.target.includes('email')) {
-      return res.status(400).json({ message: 'Cet email est déjà utilisé. Veuillez en choisir un autre.' });
+      return res.status(400).json({ message: i18n.t('emailInUse') });
     }
-    res.status(500).json({ error: 'Une erreur est survenue lors de la création de l\'utilisateur.' });
+    res.status(500).json({ error: i18n.t('createUserError') });
   }
 };
 
@@ -67,7 +68,7 @@ export const updateUtilisateur = async (req, res) => {
     });
 
     if (!utilisateurExist) {
-      return res.status(404).json({ message: 'Utilisateur non trouvé pour la mise à jour.' });
+      return res.status(404).json({ message: i18n.t('userNotFoundForUpdate') });
     }
 
     const updatedUtilisateur = await prisma.utilisateur.update({
@@ -76,11 +77,11 @@ export const updateUtilisateur = async (req, res) => {
     });
 
     res.status(200).json({
-      message: 'Utilisateur mis à jour avec succès.',
+      message: i18n.t('userUpdatedSuccess'),
       utilisateur: updatedUtilisateur
     });
   } catch (error) {
-    res.status(500).json({ error: 'Une erreur est survenue lors de la mise à jour de l\'utilisateur.' });
+    res.status(500).json({ error: i18n.t('updateUserError') });
   }
 };
 
@@ -95,15 +96,15 @@ export const deleteUtilisateur = async (req, res) => {
     });
 
     if (!utilisateurExist) {
-      return res.status(404).json({ message: 'Utilisateur non trouvé pour la suppression.' });
+      return res.status(404).json({ message: i18n.t('userNotFoundForDelete') });
     }
 
     await prisma.utilisateur.delete({
       where: { id: parseInt(id) }
     });
 
-    res.status(200).json({ message: 'Utilisateur supprimé avec succès.' });
+    res.status(200).json({ message: i18n.t('userDeletedSuccess') });
   } catch (error) {
-    res.status(500).json({ error: 'Une erreur est survenue lors de la suppression de l\'utilisateur.' });
+    res.status(500).json({ error: i18n.t('deleteUserError') });
   }
 };

@@ -1,5 +1,5 @@
 import prisma from '../config/prisma-client.js';
-import i18n from '../config/i18n.js';
+import i18n from '../config/i18next.js';
 
 // Lire tous les documents
 export const getDocuments = async (req, res) => {
@@ -13,8 +13,8 @@ export const getDocuments = async (req, res) => {
     });
     res.json(documents);
   } catch (error) {
-    console.error(i18n.__("fetchDocumentsError"), error);
-    res.status(500).json({ error: i18n.__("fetchDocumentsError"), details: error.message });
+    console.error(i18n.t("fetchDocumentsError"), error);
+    res.status(500).json({ error: i18n.t("fetchDocumentsError"), details: error.message });
   }
 };
 
@@ -33,11 +33,11 @@ export const getDocumentById = async (req, res) => {
     if (document) {
       res.json(document);
     } else {
-      res.status(404).json({ error: i18n.__("documentNotFound") });
+      res.status(404).json({ error: i18n.t("documentNotFound") });
     }
   } catch (error) {
-    console.error(i18n.__("fetchDocumentError"), error);
-    res.status(500).json({ error: i18n.__("fetchDocumentError"), details: error.message });
+    console.error(i18n.t("fetchDocumentError"), error);
+    res.status(500).json({ error: i18n.t("fetchDocumentError"), details: error.message });
   }
 };
 
@@ -46,9 +46,8 @@ export const createDocument = async (req, res) => {
   try {
     const { titre, description, date_depot, id_Utilisateur, id_TypeDocument, id_StatutDocument } = req.body;
 
-    // Vérification des champs requis
     if (!titre || !id_Utilisateur || !id_TypeDocument || !id_StatutDocument) {
-      return res.status(400).json({ error: i18n.__("missingFields") });
+      return res.status(400).json({ error: i18n.t("missingFields") });
     }
 
     const newDocument = await prisma.document.create({
@@ -63,8 +62,8 @@ export const createDocument = async (req, res) => {
     });
     res.status(201).json(newDocument);
   } catch (error) {
-    console.error(i18n.__("createDocumentError"), error);
-    res.status(500).json({ error: i18n.__("createDocumentError"), details: error.message });
+    console.error(i18n.t("createDocumentError"), error);
+    res.status(500).json({ error: i18n.t("createDocumentError"), details: error.message });
   }
 };
 
@@ -74,9 +73,8 @@ export const updateDocument = async (req, res) => {
     const { id } = req.params;
     const { titre, description, date_depot, id_Utilisateur, id_TypeDocument, id_StatutDocument } = req.body;
 
-    // Vérification des champs requis
     if (!titre) {
-      return res.status(400).json({ error: i18n.__("missingTitle") });
+      return res.status(400).json({ error: i18n.t("missingTitle") });
     }
 
     const updatedDocument = await prisma.document.update({
@@ -92,8 +90,8 @@ export const updateDocument = async (req, res) => {
     });
     res.json(updatedDocument);
   } catch (error) {
-    console.error(i18n.__("updateDocumentError"), error);
-    res.status(500).json({ error: i18n.__("updateDocumentError"), details: error.message });
+    console.error(i18n.t("updateDocumentError"), error);
+    res.status(500).json({ error: i18n.t("updateDocumentError"), details: error.message });
   }
 };
 
@@ -102,21 +100,20 @@ export const deleteDocument = async (req, res) => {
   try {
     const { id } = req.params;
 
-    // Vérifier si le document existe avant de le supprimer
     const document = await prisma.document.findUnique({
       where: { id: Number(id) },
     });
 
     if (!document) {
-      return res.status(404).json({ error: i18n.__("documentNotFound") });
+      return res.status(404).json({ error: i18n.t("documentNotFound") });
     }
 
     await prisma.document.delete({
       where: { id: Number(id) },
     });
-    res.json({ message: i18n.__("deleteDocumentSuccess") });
+    res.json({ message: i18n.t("deleteDocumentSuccess") });
   } catch (error) {
-    console.error(i18n.__("deleteDocumentError"), error);
-    res.status(500).json({ error: i18n.__("deleteDocumentError"), details: error.message });
+    console.error(i18n.t("deleteDocumentError"), error);
+    res.status(500).json({ error: i18n.t("deleteDocumentError"), details: error.message });
   }
 };

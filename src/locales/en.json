@@ -1,0 +1,11 @@
+{
+    "fetchDocumentsError": "Error retrieving documents.",
+    "documentNotFound": "Document not found.",
+    "createDocumentError": "Error creating document.",
+    "updateDocumentError": "Error updating document.",
+    "deleteDocumentSuccess": "Document successfully deleted.",
+    "deleteDocumentError": "Error deleting document.",
+    "missingFields": "Required fields are missing.",
+    "missingTitle": "The 'title' field is required."
+  }
+  
