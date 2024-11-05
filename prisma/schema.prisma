@@ -8,46 +8,46 @@ generator client {
 }
 
 model Utilisateur {
-  id          Int      @id @default(autoincrement())
-  nom         String   @db.VarChar(100)
-  email       String   @unique @db.VarChar(100)
-  mot_de_passe String  @db.VarChar(100)
-  role        String   @db.VarChar(50)
-  date_creation DateTime @default(now())
-  documents   Document[]
-  types       TypeDocument[]
-  statuts     StatutDocument[]
+  id             Int             @id @default(autoincrement())
+  nom            String          @db.VarChar(100)
+  email          String          @unique @db.VarChar(100)
+  mot_de_passe   String          @db.VarChar(100)
+  role           String          @db.VarChar(50)
+  date_creation  DateTime        @default(now())
+  documents      Document[]      // Relation avec Document
+  types          TypeDocument[]  // Relation avec TypeDocument
+  statuts        StatutDocument[] // Relation avec StatutDocument
 }
 
 model TypeDocument {
-  id          Int      @id @default(autoincrement())
-  nom         String   @db.VarChar(50)
-  description String?
-  utilisateur Utilisateur @relation(fields: [id_Utilisateur], references: [id])
+  id             Int             @id @default(autoincrement())
+  nom            String          @db.VarChar(50)
+  description    String?
+  utilisateur    Utilisateur     @relation(fields: [id_Utilisateur], references: [id])
   id_Utilisateur Int
-  documents   Document[]
+  documents      Document[]      // Relation avec Document
 }
 
 model StatutDocument {
-  id          Int      @id @default(autoincrement())
-  nom         String   @db.VarChar(20)
-  description String?
-  utilisateur Utilisateur @relation(fields: [id_Utilisateur], references: [id])
+  id             Int             @id @default(autoincrement())
+  nom            String          @db.VarChar(20)
+  description    String?
+  utilisateur    Utilisateur     @relation(fields: [id_Utilisateur], references: [id])
   id_Utilisateur Int
-  documents   Document[]
+  documents      Document[]      // Relation avec Document
 }
 
 model Document {
-  id             Int      @id @default(autoincrement())
-  titre          String   @db.VarChar(100)
-  description    String?
-  date_depot     DateTime
-  date_validation DateTime?
-  historique     String?  @db.VarChar(20)
-  utilisateur    Utilisateur @relation(fields: [id_Utilisateur], references: [id])
-  id_Utilisateur Int
-  typeDocument   TypeDocument @relation(fields: [id_TypeDocument], references: [id])
-  id_TypeDocument Int
-  statutDocument StatutDocument @relation(fields: [id_StatutDocument], references: [id])
+  id               Int             @id @default(autoincrement())
+  titre            String          @db.VarChar(100)
+  description      String?
+  date_depot       DateTime
+  date_validation  DateTime?
+  historique       String?         @db.VarChar(20)
+  utilisateur      Utilisateur     @relation(fields: [id_Utilisateur], references: [id])
+  id_Utilisateur   Int
+  typeDocument     TypeDocument    @relation(fields: [id_TypeDocument], references: [id])
+  id_TypeDocument  Int
+  statutDocument   StatutDocument  @relation(fields: [id_StatutDocument], references: [id])
   id_StatutDocument Int
 }

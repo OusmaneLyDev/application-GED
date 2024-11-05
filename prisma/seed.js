@@ -1,71 +1,77 @@
+// prisma/seed.js
 import { PrismaClient } from '@prisma/client';
 import { faker } from '@faker-js/faker';
 
 const prisma = new PrismaClient();
 
 async function main() {
-    // Création de plusieurs utilisateurs
-    const utilisateurs = [];
-    for (let i = 0; i < 10; i++) {
-        const utilisateur = await prisma.utilisateur.create({
-            data: {
-                nom: faker.person.fullName(),
-                email: faker.internet.email(),
-                mot_de_passe: faker.internet.password(),
-                role: faker.helpers.arrayElement(['admin', 'editor', 'viewer']),
-                date_creation: faker.date.past(),
-            },
-        });
-        utilisateurs.push(utilisateur);
-    }
+  // Création des utilisateurs
+  const utilisateurs = [];
+  for (let i = 0; i < 3; i++) {
+    utilisateurs.push(await prisma.utilisateur.create({
+      data: {
+        nom: faker.person.fullName(),
+        email: faker.internet.email(),
+        mot_de_passe: faker.internet.password(),
+        role: i === 0 ? 'admin' : 'user',
+      },
+    }));
+  }
 
-    // Création de types de documents
-    const typesDocuments = [];
-    for (let i = 0; i < 5; i++) {
-        const typeDoc = await prisma.typeDocument.create({
-            data: {
-                nom: faker.lorem.word(),
-                description: faker.lorem.sentence(),
-                id_Utilisateur: faker.helpers.arrayElement(utilisateurs).id,
-            },
-        });
-        typesDocuments.push(typeDoc);
-    }
+  // Création des types de documents
+  const typesDocuments = [];
+  for (let i = 0; i < 3; i++) {
+    typesDocuments.push(await prisma.typeDocument.create({
+      data: {
+        nom: faker.commerce.productName(),
+        description: faker.commerce.productDescription().substring(0, 50), // Limite de longueur
+        id_Utilisateur: utilisateurs[i % utilisateurs.length].id,
+      },
+    }));
+  }
 
-    // Création de statuts de documents
-    const statutsDocuments = [];
-    for (let i = 0; i < 3; i++) {
-        const statutDoc = await prisma.statutDocument.create({
-            data: {
-                nom: faker.lorem.word(),
-                description: faker.lorem.sentence(),
-                id_Utilisateur: faker.helpers.arrayElement(utilisateurs).id,
-            },
-        });
-        statutsDocuments.push(statutDoc);
-    }
+  // Création des statuts de documents
+  const statutsDocuments = [];
+  const statutOptions = [
+    { nom: 'en attente', description: 'Document en cours de traitement' },
+    { nom: 'validé', description: 'Document validé par l\'administration' },
+    { nom: 'rejeté', description: 'Document refusé suite à une révision' },
+    { nom: 'archivé', description: 'Document archivé pour référence future' },
+  ];
+  for (let statut of statutOptions) {
+    statutsDocuments.push(await prisma.statutDocument.create({
+      data: {
+        nom: statut.nom,
+        description: statut.description,
+        id_Utilisateur: utilisateurs[0].id, // Assigner au premier utilisateur
+      },
+    }));
+  }
 
-    // Création de documents
-    for (let i = 0; i < 50; i++) {
-        await prisma.document.create({
-            data: {
-                titre: faker.lorem.words(3),
-                description: faker.lorem.paragraph(),
-                date_depot: faker.date.recent(),
-                date_validation: faker.date.future(),
-                historique: faker.lorem.word(),
-                id_Utilisateur: faker.helpers.arrayElement(utilisateurs).id,
-                id_TypeDocument: faker.helpers.arrayElement(typesDocuments).id,
-                id_StatutDocument: faker.helpers.arrayElement(statutsDocuments).id,
-            },
-        });
-    }
-
-    console.log('Données de test générées avec succès.');
+  // Création des documents
+  for (let i = 0; i < 5; i++) {
+    await prisma.document.create({
+      data: {
+        titre: faker.lorem.words(3).substring(0, 100), // Limite de longueur de 100 caractères
+        description: faker.lorem.sentences(2).substring(0, 100), // Ajusté pour la limite
+        date_depot: faker.date.past(),
+        date_validation: i % 2 === 0 ? faker.date.recent() : null,
+        historique: faker.lorem.words(3).substring(0, 20), // Limite de longueur de 20 caractères
+        id_Utilisateur: utilisateurs[i % utilisateurs.length].id,
+        id_TypeDocument: typesDocuments[i % typesDocuments.length].id,
+        id_StatutDocument: statutsDocuments[i % statutsDocuments.length].id,
+      },
+    });
+  }
 }
 
 main()
-    .catch((e) => console.error(e))
-    .finally(async () => {
-        await prisma.$disconnect();
-    });
+  .then(async () => {
+    await prisma.$disconnect();
+    console.log("Données de test générées avec succès !");
+  })
+  .catch(async (e) => {
+    console.error(e);
+    await prisma.$disconnect();
+    process.exit(1);
+  });
