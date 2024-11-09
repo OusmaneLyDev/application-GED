@@ -46,7 +46,17 @@ export const createDocument = async (req, res) => {
   try {
     const { titre, description, date_depot, id_Utilisateur, id_TypeDocument, id_StatutDocument } = req.body;
 
-    if (!titre || !id_Utilisateur || !id_TypeDocument || !id_StatutDocument) {
+    // Ajouter des journaux de débogage
+    console.log('Req body received:', req.body);
+    console.log('Titre:', titre);
+    console.log('Description:', description);
+    console.log('Date de dépôt:', date_depot);
+    console.log('ID Utilisateur:', id_Utilisateur);
+    console.log('ID Type Document:', id_TypeDocument);
+    console.log('ID Statut Document:', id_StatutDocument);
+
+    // Condition de vérification des champs
+    if (!titre || !id_Utilisateur || !id_TypeDocument || !id_StatutDocument || !date_depot) {
       return res.status(400).json({ error: i18n.t("missingFields") });
     }
 
@@ -55,9 +65,9 @@ export const createDocument = async (req, res) => {
         titre,
         description,
         date_depot: new Date(date_depot),
-        utilisateur: { connect: { id: id_Utilisateur } },
-        typeDocument: { connect: { id: id_TypeDocument } },
-        statutDocument: { connect: { id: id_StatutDocument } },
+        utilisateur: { connect: { id: Number(id_Utilisateur) } },
+        typeDocument: { connect: { id: Number(id_TypeDocument) } },
+        statutDocument: { connect: { id: Number(id_StatutDocument) } },
       },
     });
     res.status(201).json(newDocument);
@@ -66,6 +76,7 @@ export const createDocument = async (req, res) => {
     res.status(500).json({ error: i18n.t("createDocumentError"), details: error.message });
   }
 };
+
 
 // Mettre à jour un document existant
 export const updateDocument = async (req, res) => {

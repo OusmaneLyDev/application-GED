@@ -5,7 +5,30 @@ import i18n from '../config/i18next.js';
 export const getStatutsDocument = async (req, res) => {
   try {
     const statutsDocument = await prisma.statutDocument.findMany();
+    if (!statutsDocument || statutsDocument.length === 0) {
+      return res.status(404).json({ error: i18n.t("noStatusesFound") });
+    }
     res.json(statutsDocument);
+  } catch (error) {
+    console.error(i18n.t("fetchStatusError"), error);
+    res.status(500).json({ error: i18n.t("fetchStatusError"), details: error.message });
+  }
+};
+
+// Lire un statut de document par ID
+export const getStatutDocumentById = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const statutDocument = await prisma.statutDocument.findUnique({
+      where: { id: parseInt(id) },
+    });
+
+    if (!statutDocument) {
+      return res.status(404).json({ error: i18n.t("statusNotFound") });
+    }
+
+    res.json(statutDocument);
   } catch (error) {
     console.error(i18n.t("fetchStatusError"), error);
     res.status(500).json({ error: i18n.t("fetchStatusError"), details: error.message });
@@ -19,6 +42,15 @@ export const createStatutDocument = async (req, res) => {
 
     if (!nom || !id_Utilisateur) {
       return res.status(400).json({ error: i18n.t("missingFields") });
+    }
+
+    // Vérifier si l'utilisateur existe avant de créer un statut
+    const utilisateurExist = await prisma.utilisateur.findUnique({
+      where: { id: parseInt(id_Utilisateur) },
+    });
+
+    if (!utilisateurExist) {
+      return res.status(404).json({ error: i18n.t("userNotFound") });
     }
 
     const newStatutDocument = await prisma.statutDocument.create({
@@ -43,6 +75,26 @@ export const updateStatutDocument = async (req, res) => {
 
     if (!nom) {
       return res.status(400).json({ error: i18n.t("missingNameField") });
+    }
+
+    // Vérification si le statut existe avant la mise à jour
+    const statutExist = await prisma.statutDocument.findUnique({
+      where: { id: parseInt(id) },
+    });
+
+    if (!statutExist) {
+      return res.status(404).json({ error: i18n.t("statusNotFound") });
+    }
+
+    // Vérifier si l'utilisateur existe avant de l'ajouter
+    if (id_Utilisateur) {
+      const utilisateurExist = await prisma.utilisateur.findUnique({
+        where: { id: parseInt(id_Utilisateur) },
+      });
+
+      if (!utilisateurExist) {
+        return res.status(404).json({ error: i18n.t("userNotFound") });
+      }
     }
 
     const updatedStatutDocument = await prisma.statutDocument.update({

@@ -5,7 +5,7 @@ import {
     createUtilisateur,
     updateUtilisateur,
     deleteUtilisateur
-} from '../controllers/utilisateurController.js'; // Assure-toi que le chemin est correct
+} from '../controllers/utilisateurController.js'; 
 
 const router = express.Router();
 

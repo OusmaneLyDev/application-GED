@@ -1,6 +1,7 @@
 import express from 'express';
 import {
     getStatutsDocument,
+    getStatutDocumentById,
     createStatutDocument,
     updateStatutDocument,
     deleteStatutDocument
@@ -10,6 +11,7 @@ const router = express.Router();
 
 // Routes
 router.get('/', getStatutsDocument);
+router.get('/:id', getStatutDocumentById);
 router.post('/', createStatutDocument);
 router.put('/:id', updateStatutDocument);
 router.delete('/:id', deleteStatutDocument);

@@ -20,6 +20,7 @@ export const getUtilisateurs = async (req, res) => {
 export const getUtilisateurById = async (req, res) => {
   try {
     const { id } = req.params;
+    console.log("ID reçu :", id); // Ajouter un log pour vérifier l'ID
     const utilisateur = await prisma.utilisateur.findUnique({
       where: { id: parseInt(id) }
     });
@@ -31,6 +32,7 @@ export const getUtilisateurById = async (req, res) => {
     res.status(500).json({ error: i18n.t('getUserByIdError') });
   }
 };
+
 
 // Créer un nouvel utilisateur
 export const createUtilisateur = async (req, res) => {
@@ -106,6 +108,10 @@ export const updateUtilisateur = async (req, res) => {
     const { id } = req.params;
     const { nom, email, mot_de_passe, role } = req.body;
 
+    // Ajouter des journaux de débogage
+    console.log('Req params:', req.params);
+    console.log('Req body:', req.body);
+
     // Vérifier si l'utilisateur existe
     const utilisateurExist = await prisma.utilisateur.findUnique({
       where: { id: parseInt(id) }
@@ -121,7 +127,7 @@ export const updateUtilisateur = async (req, res) => {
       email,
       role
     };
-    
+
     if (mot_de_passe) {
       updatedData.mot_de_passe = await bcrypt.hash(mot_de_passe, 10);
     }
@@ -131,19 +137,25 @@ export const updateUtilisateur = async (req, res) => {
       data: updatedData
     });
 
+    console.log('User updated successfully:', updatedUtilisateur);
     res.status(200).json({
       message: i18n.t('userUpdatedSuccess'),
       utilisateur: updatedUtilisateur
     });
   } catch (error) {
-    res.status(500).json({ error: i18n.t('updateUserError') });
+    console.error('Erreur lors de la mise à jour de l\'utilisateur:', error); // Log des erreurs
+    res.status(500).json({ message: 'Erreur de mise à jour de l\'utilisateur', error: error.message || error });
   }
 };
 
-// Supprimer un utilisateur
+
+
 export const deleteUtilisateur = async (req, res) => {
   try {
     const { id } = req.params;
+
+    // Ajouter des journaux de débogage
+    console.log('Request to delete user with ID:', id);
 
     // Vérifier si l'utilisateur existe
     const utilisateurExist = await prisma.utilisateur.findUnique({
@@ -151,6 +163,7 @@ export const deleteUtilisateur = async (req, res) => {
     });
 
     if (!utilisateurExist) {
+      console.log('User not found for deletion');
       return res.status(404).json({ message: i18n.t('userNotFoundForDelete') });
     }
 
@@ -158,8 +171,11 @@ export const deleteUtilisateur = async (req, res) => {
       where: { id: parseInt(id) }
     });
 
+    console.log('User deleted successfully');
     res.status(200).json({ message: i18n.t('userDeletedSuccess') });
   } catch (error) {
+    console.error('Error deleting user:', error);
     res.status(500).json({ error: i18n.t('deleteUserError') });
   }
 };
+
