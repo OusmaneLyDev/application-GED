@@ -1,6 +1,12 @@
 import prisma from '../config/prisma-client.js';  
 import i18n from '../config/i18next.js';
 
+// Vérification de l'ID (parseInt + validation)
+const validateId = (id) => {
+  const parsedId = parseInt(id, 10);
+  return !isNaN(parsedId) && parsedId > 0 ? parsedId : null;
+};
+
 // Récupérer tous les types de documents
 export const getTypesDocument = async (req, res) => {
   try {
@@ -15,9 +21,16 @@ export const getTypesDocument = async (req, res) => {
 export const getTypeDocumentById = async (req, res) => {
   try {
     const { id } = req.params;
+    const validId = validateId(id);
+
+    if (!validId) {
+      return res.status(400).json({ error: i18n.t('invalidId') });
+    }
+
     const typeDocument = await prisma.typeDocument.findUnique({
-      where: { id: parseInt(id) }
+      where: { id: validId }
     });
+
     if (typeDocument) {
       res.json(typeDocument);
     } else {
@@ -52,43 +65,65 @@ export const createTypeDocument = async (req, res) => {
   }
 };
 
-// Mettre à jour un type de document existant
+// Mettre à jour un type de document
 export const updateTypeDocument = async (req, res) => {
   try {
-    const { id } = req.params;
+    const id = validateId(req.params.id);
     const { nom, description } = req.body;
+
+    if (!id) {
+      return res.status(400).json({ error: i18n.t('invalidId') });
+    }
 
     if (!nom) {
       return res.status(400).json({ error: i18n.t('missingName') });
     }
 
+    const existingTypeDocument = await prisma.typeDocument.findUnique({ where: { id } });
+    if (!existingTypeDocument) {
+      return res.status(404).json({ error: i18n.t('documentNotFound') });
+    }
+
     const updatedTypeDocument = await prisma.typeDocument.update({
-      where: { id: parseInt(id) },
+      where: { id },
       data: { nom, description }
     });
+
     res.json(updatedTypeDocument);
   } catch (error) {
-    res.status(500).json({ error: i18n.t('updateTypeDocumentError') });
+    console.error("Erreur lors de la mise à jour du type de document :", error);
+    res.status(500).json({ error: i18n.t('updateTypeDocumentError'), details: error.message });
   }
 };
 
-// Supprimer un type de document (vérification des documents associés)
+// Supprimer un type de document
 export const deleteTypeDocument = async (req, res) => {
   try {
     const { id } = req.params;
+    const validId = validateId(id);
+
+    if (!validId) {
+      return res.status(400).json({ error: i18n.t('invalidId') });
+    }
 
     const documentsAssocies = await prisma.document.count({
-      where: { typeDocumentId: parseInt(id), statut: 'actif' }
+      where: {
+        id_TypeDocument: validId,
+        id_StatutDocument: 1 // Remplacez '1' par l'ID réel correspondant au statut "actif"
+      }
     });
+
     if (documentsAssocies > 0) {
       return res.status(400).json({ error: i18n.t('deleteTypeDocumentErrorActiveDocuments') });
     }
 
     await prisma.typeDocument.delete({
-      where: { id: parseInt(id) }
+      where: { id: validId }
     });
-    res.status(204).send();  
+
+    res.status(204).send();
   } catch (error) {
-    res.status(500).json({ error: i18n.t('deleteTypeDocumentError') });
+    console.error("Erreur lors de la suppression du type de document :", error);
+    res.status(500).json({ error: i18n.t('deleteTypeDocumentError'), details: error.message });
   }
 };

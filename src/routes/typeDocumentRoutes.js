@@ -6,7 +6,7 @@ import {
     updateTypeDocument,
     deleteTypeDocument
 } from '../controllers/typeDocumentController.js';
-
+ 
 const router = express.Router();
 
 // Routes
