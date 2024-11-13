@@ -31,5 +31,30 @@ Avant d'installer et de lancer l'application, assurez-vous que les éléments su
 ### 1. Cloner le dépôt (si nécessaire)
 
 ```bash
-git clone https://github.com/your-repo/gestion-documents.git
-cd gestion-documents
+git clone https://github.com/OusmaneLyDev/application-GED.git
+cd application-GED
+
+install
+```
+
+- Configurer l'environnement
+  Créez un fichier .env à la racine du projet et ajoutez les configurations nécessaires (par exemple, pour la base de données).
+
+- Exemple .env :
+
+2. **Installer les dépendances**
+
+    ```bash
+    npm install
+    ```
+
+3. **Lancer l'application**
+
+    ```bash
+    npm start
+    ```
+
+
+## Auteur
+
+[Ethman Ly](https://github.com/OusmaneLyDev).

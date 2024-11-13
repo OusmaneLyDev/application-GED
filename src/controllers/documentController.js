@@ -78,16 +78,17 @@ export const createDocument = async (req, res) => {
 };
 
 
-// Mettre à jour un document existant
 export const updateDocument = async (req, res) => {
   try {
     const { id } = req.params;
     const { titre, description, date_depot, id_Utilisateur, id_TypeDocument, id_StatutDocument } = req.body;
 
+    // Vérification des champs obligatoires
     if (!titre) {
       return res.status(400).json({ error: i18n.t("missingTitle") });
     }
 
+    // Mise à jour du document
     const updatedDocument = await prisma.document.update({
       where: { id: Number(id) },
       data: {
@@ -99,14 +100,19 @@ export const updateDocument = async (req, res) => {
         statutDocument: { connect: { id: id_StatutDocument } },
       },
     });
-    res.json(updatedDocument);
+
+    // Message de succès
+    res.json({
+      message: i18n.t("updateDocumentSuccess"),
+      document: updatedDocument,
+    });
   } catch (error) {
     console.error(i18n.t("updateDocumentError"), error);
     res.status(500).json({ error: i18n.t("updateDocumentError"), details: error.message });
   }
 };
 
-// Supprimer un document
+
 export const deleteDocument = async (req, res) => {
   try {
     const { id } = req.params;
@@ -122,9 +128,15 @@ export const deleteDocument = async (req, res) => {
     await prisma.document.delete({
       where: { id: Number(id) },
     });
-    res.json({ message: i18n.t("deleteDocumentSuccess") });
+
+    // Message de succès
+    res.json({
+      message: i18n.t("deleteDocumentSuccess"),
+      id: id,
+    });
   } catch (error) {
     console.error(i18n.t("deleteDocumentError"), error);
     res.status(500).json({ error: i18n.t("deleteDocumentError"), details: error.message });
   }
 };
+
