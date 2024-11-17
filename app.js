@@ -22,7 +22,7 @@ i18next.changeLanguage('en').then(() => {
     app.use(express.json());
 
     // Routes
-    app.use('/api/auth', authRoutes); // Ajouter les routes d'authentification
+    app.use('/api/', authRoutes); // Ajouter les routes d'authentification
     app.use('/api/documents', documentRoutes);
     app.use('/api/utilisateurs', utilisateurRoutes);
     app.use('/api/types-document', typeDocumentRoutes);

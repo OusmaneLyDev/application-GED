@@ -7,17 +7,18 @@ import {
     deleteDocument,
     getDocumentById, 
 } from '../controllers/documentController.js';
+import { authenticateToken } from '../middleware/authMiddleware.js';
 
 const router = express.Router();
 const prisma = new PrismaClient();
 
 // Routes
-router.get('/', getDocuments);
-router.post('/', createDocument);
-router.put('/:id', updateDocument);
-router.delete('/:id', deleteDocument);
+router.get('/',authenticateToken, getDocuments);
+router.post('/',authenticateToken, createDocument);
+router.put('/:id',authenticateToken, updateDocument);
+router.delete('/:id',authenticateToken, deleteDocument);
 
-router.get('/:id', getDocumentById);
+router.get('/:id',authenticateToken, getDocumentById);
 
 export default router;
 

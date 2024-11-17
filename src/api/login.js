@@ -8,40 +8,40 @@ const router = express.Router();
 const prisma = new PrismaClient();
 
 // Inscription
-router.post('/register', async (req, res) => {
-    const { nom, email, mot_de_passe, role } = req.body; // Mettez à jour les noms des champs ici
+// router.post('/register', async (req, res) => {
+//     const { nom, email, mot_de_passe, role } = req.body; // Mettez à jour les noms des champs ici
 
-    // Vérifiez la présence des champs requis
-    if (!nom || !email || !mot_de_passe) {
-        return res.status(400).json({ message: 'Nom, email et mot de passe sont requis' });
-    }
+//     // Vérifiez la présence des champs requis
+//     if (!nom || !email || !mot_de_passe) {
+//         return res.status(400).json({ message: 'Nom, email et mot de passe sont requis' });
+//     }
 
-    try {
-        // Vérifiez si l'utilisateur existe déjà
-        const existingUser = await prisma.utilisateur.findUnique({ where: { email } }); // Utilisez 'utilisateur'
-        if (existingUser) {
-            return res.status(400).json({ message: 'Utilisateur déjà existant' });
-        }
+//     try {
+//         // Vérifiez si l'utilisateur existe déjà
+//         const existingUser = await prisma.utilisateur.findUnique({ where: { email } }); // Utilisez 'utilisateur'
+//         if (existingUser) {
+//             return res.status(400).json({ message: 'Utilisateur déjà existant' });
+//         }
 
-        // Hacher le mot de passe
-        const hashedPassword = await bcrypt.hash(mot_de_passe, 10); // Utilisez 'mot_de_passe'
+//         // Hacher le mot de passe
+//         const hashedPassword = await bcrypt.hash(mot_de_passe, 10); // Utilisez 'mot_de_passe'
 
-        // Enregistrer l'utilisateur
-        const utilisateur = await prisma.utilisateur.create({ // Utilisez 'utilisateur'
-            data: {
-                nom,
-                email,
-                mot_de_passe: hashedPassword,
-                role,
-            },
-        });
+//         // Enregistrer l'utilisateur
+//         const utilisateur = await prisma.utilisateur.create({ // Utilisez 'utilisateur'
+//             data: {
+//                 nom,
+//                 email,
+//                 mot_de_passe: hashedPassword,
+//                 role,
+//             },
+//         });
 
-        res.status(201).json({ message: 'Utilisateur enregistré avec succès', utilisateur: { id: utilisateur.id, email: utilisateur.email } });
-    } catch (err) {
-        console.error('Erreur d\'inscription:', err);
-        res.status(500).json({ message: 'Échec de l\'inscription de l\'utilisateur' });
-    }
-});
+//         res.status(201).json({ message: 'Utilisateur enregistré avec succès', utilisateur: { id: utilisateur.id, email: utilisateur.email } });
+//     } catch (err) {
+//         console.error('Erreur d\'inscription:', err);
+//         res.status(500).json({ message: 'Échec de l\'inscription de l\'utilisateur' });
+//     }
+// });
 
 // Connexion
 router.post('/login', async (req, res) => {

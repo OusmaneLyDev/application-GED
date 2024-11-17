@@ -6,14 +6,14 @@ import {
     updateUtilisateur,
     deleteUtilisateur
 } from '../controllers/utilisateurController.js'; 
-
+import { authenticateToken } from '../middleware/authMiddleware.js';
 const router = express.Router();
 
 // Définir les routes
-router.get('/', getUtilisateurs); 
-router.get('/:id', getUtilisateurById); 
-router.post('/', createUtilisateur); 
-router.put('/:id', updateUtilisateur); 
-router.delete('/:id', deleteUtilisateur); 
+router.get('/', authenticateToken, getUtilisateurs); 
+router.get('/:id',authenticateToken, getUtilisateurById); 
+router.post('/',authenticateToken, createUtilisateur); 
+router.put('/:id',authenticateToken, updateUtilisateur); 
+router.delete('/:id',authenticateToken, deleteUtilisateur); 
 
 export default router;

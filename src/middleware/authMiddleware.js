@@ -1,18 +1,47 @@
-// src/middleware/Auth.js
-import jwt from 'jsonwebtoken';
+import jwt from "jsonwebtoken";
+import dotenv from "dotenv";
 
-const authenticateToken = (req, res, next) => {
-    const token = req.header('Authorization')?.replace('Bearer ', '');
+dotenv.config();
 
-    if (!token) return res.status(401).json({ message: 'Accès refusé' });
+export const authenticateToken = (req, res, next) => {
+  try {
+    const authHeader = req.header("Authorization");
 
-    try {
-        const verified = jwt.verify(token, process.env.JWT_SECRET);
-        req.user = verified;
-        next();
-    } catch (err) {
-        res.status(400).json({ message: 'Token invalide' });
+    if (!authHeader || !authHeader.startsWith("Bearer ")) {
+      return res.status(401).json({
+        message: "Access denied. No token provided.",
+      });
     }
+    
+    const token = authHeader.split(" ")[1];
+
+    console.log("Token reçu:", token);
+
+    if (!token) {
+      return res.status(401).json({
+        message: "Access denied. No token provided.",
+      });
+    }
+
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+
+    req.user = decoded;
+
+    next();
+  } catch (error) {
+    const message =
+      error.name === "TokenExpiredError" ? "Token expired." : "Invalid token.";
+    return res.status(401).json({ message });
+  }
 };
 
-export default authenticateToken;
+export const authorizeRole = (...roles) => {
+  return (req, res, next) => {
+    if (!req.user || !roles.includes(req.user.role)) {
+      return res
+        .status(403)
+        .json({ message: "Access denied. Insufficient permissions." });
+    }
+    next();
+  };
+};
