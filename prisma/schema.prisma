@@ -23,8 +23,8 @@ model TypeDocument {
   id             Int             @id @default(autoincrement())
   nom            String          @db.VarChar(50)
   description    String?
-  utilisateur    Utilisateur     @relation(fields: [id_Utilisateur], references: [id])
-  id_Utilisateur Int
+  utilisateur    Utilisateur?   @relation(fields: [id_Utilisateur], references: [id])
+  id_Utilisateur Int?
   documents      Document[]      // Relation avec Document
 }
 
@@ -32,20 +32,21 @@ model StatutDocument {
   id             Int             @id @default(autoincrement())
   nom            String          @db.VarChar(20)
   description    String?
-  utilisateur    Utilisateur     @relation(fields: [id_Utilisateur], references: [id])
-  id_Utilisateur Int
+  utilisateur    Utilisateur?     @relation(fields: [id_Utilisateur], references: [id])
+  id_Utilisateur Int?
   documents      Document[]      // Relation avec Document
 }
 
 model Document {
   id               Int             @id @default(autoincrement())
   titre            String          @db.VarChar(100)
-  description      String?
+  description      String?         @db.Text
   date_depot       DateTime
   date_validation  DateTime?
+  fichier          String?         @db.VarChar(255) // Colonne ajoutée pour le fichier (optionnelle)
   historique       String?         @db.VarChar(20)
-  utilisateur      Utilisateur     @relation(fields: [id_Utilisateur], references: [id])
-  id_Utilisateur   Int
+  utilisateur      Utilisateur?     @relation(fields: [id_Utilisateur], references: [id])
+  id_Utilisateur   Int?
   typeDocument     TypeDocument    @relation(fields: [id_TypeDocument], references: [id])
   id_TypeDocument  Int
   statutDocument   StatutDocument  @relation(fields: [id_StatutDocument], references: [id])

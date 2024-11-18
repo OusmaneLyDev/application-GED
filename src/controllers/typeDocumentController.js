@@ -44,9 +44,9 @@ export const getTypeDocumentById = async (req, res) => {
 // Créer un nouveau type de document
 export const createTypeDocument = async (req, res) => {
   try {
-    const { nom, description, id_Utilisateur } = req.body;
+    const { nom, description } = req.body;
 
-    if (!nom || !description || !id_Utilisateur) {
+    if (!nom || !description ) {
       return res.status(400).json({ error: i18n.t('missingFields') });
     }
     
@@ -54,8 +54,8 @@ export const createTypeDocument = async (req, res) => {
     const newTypeDocument = await prisma.typeDocument.create({
       data: {
         nom,
-        description,
-        id_Utilisateur: parseInt(id_Utilisateur)
+        description
+        // id_Utilisateur: parseInt(id_Utilisateur)
       }
     });
 

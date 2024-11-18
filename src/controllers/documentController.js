@@ -44,19 +44,11 @@ export const getDocumentById = async (req, res) => {
 // Créer un nouveau document
 export const createDocument = async (req, res) => {
   try {
-    const { titre, description, date_depot, id_Utilisateur, id_TypeDocument, id_StatutDocument } = req.body;
+    const { titre, description, date_depot, id_TypeDocument, id_StatutDocument } = req.body;
+    const fichier = req.file?.filename || null; // Si un fichier est uploadé, utilisez son nom, sinon `null`.
 
-    // Ajouter des journaux de débogage
-    console.log('Req body received:', req.body);
-    console.log('Titre:', titre);
-    console.log('Description:', description);
-    console.log('Date de dépôt:', date_depot);
-    console.log('ID Utilisateur:', id_Utilisateur);
-    console.log('ID Type Document:', id_TypeDocument);
-    console.log('ID Statut Document:', id_StatutDocument);
-
-    // Condition de vérification des champs
-    if (!titre || !id_Utilisateur || !id_TypeDocument || !id_StatutDocument || !date_depot) {
+    // Vérification des champs obligatoires
+    if (!titre || !id_TypeDocument || !id_StatutDocument || !date_depot) {
       return res.status(400).json({ error: i18n.t("missingFields") });
     }
 
@@ -65,7 +57,8 @@ export const createDocument = async (req, res) => {
         titre,
         description,
         date_depot: new Date(date_depot),
-        utilisateur: { connect: { id: Number(id_Utilisateur) } },
+        fichier, // Ajout du champ `fichier`
+        // utilisateur: { connect: { id: Number(id_Utilisateur) } },
         typeDocument: { connect: { id: Number(id_TypeDocument) } },
         statutDocument: { connect: { id: Number(id_StatutDocument) } },
       },
@@ -77,31 +70,37 @@ export const createDocument = async (req, res) => {
   }
 };
 
-
+// Mettre à jour un document
 export const updateDocument = async (req, res) => {
   try {
     const { id } = req.params;
-    const { titre, description, date_depot, id_Utilisateur, id_TypeDocument, id_StatutDocument } = req.body;
+    const { titre, description, date_depot, id_TypeDocument, id_StatutDocument } = req.body;
+    const fichier = req.file?.filename || null; // Si un fichier est uploadé, utilisez son nom, sinon `null`.
 
     // Vérification des champs obligatoires
     if (!titre) {
       return res.status(400).json({ error: i18n.t("missingTitle") });
     }
 
-    // Mise à jour du document
+    const updatedData = {
+      titre,
+      description,
+      date_depot: new Date(date_depot),
+      // utilisateur: { connect: { id: id_Utilisateur } },
+      typeDocument: { connect: { id: id_TypeDocument } },
+      statutDocument: { connect: { id: id_StatutDocument } },
+    };
+
+    // Ajouter le champ `fichier` uniquement s'il est présent
+    if (fichier) {
+      updatedData.fichier = fichier;
+    }
+
     const updatedDocument = await prisma.document.update({
       where: { id: Number(id) },
-      data: {
-        titre,
-        description,
-        date_depot: new Date(date_depot),
-        utilisateur: { connect: { id: id_Utilisateur } },
-        typeDocument: { connect: { id: id_TypeDocument } },
-        statutDocument: { connect: { id: id_StatutDocument } },
-      },
+      data: updatedData,
     });
 
-    // Message de succès
     res.json({
       message: i18n.t("updateDocumentSuccess"),
       document: updatedDocument,
@@ -112,7 +111,7 @@ export const updateDocument = async (req, res) => {
   }
 };
 
-
+// Supprimer un document
 export const deleteDocument = async (req, res) => {
   try {
     const { id } = req.params;
@@ -129,7 +128,6 @@ export const deleteDocument = async (req, res) => {
       where: { id: Number(id) },
     });
 
-    // Message de succès
     res.json({
       message: i18n.t("deleteDocumentSuccess"),
       id: id,
@@ -139,4 +137,3 @@ export const deleteDocument = async (req, res) => {
     res.status(500).json({ error: i18n.t("deleteDocumentError"), details: error.message });
   }
 };
-

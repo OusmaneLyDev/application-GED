@@ -38,26 +38,26 @@ export const getStatutDocumentById = async (req, res) => {
 // Créer un statut de document
 export const createStatutDocument = async (req, res) => {
   try {
-    const { nom, description, id_Utilisateur } = req.body;
+    const { nom, description } = req.body;
 
-    if (!nom || !id_Utilisateur) {
-      return res.status(400).json({ error: i18n.t("missingFields") });
-    }
+    // if (!nom || !id_Utilisateur) {
+    //   return res.status(400).json({ error: i18n.t("missingFields") });
+    // }
 
     // Vérifier si l'utilisateur existe avant de créer un statut
-    const utilisateurExist = await prisma.utilisateur.findUnique({
-      where: { id: parseInt(id_Utilisateur) },
-    });
+    // const utilisateurExist = await prisma.utilisateur.findUnique({
+    //   where: { id: parseInt(id_Utilisateur) },
+    // });
 
-    if (!utilisateurExist) {
-      return res.status(404).json({ error: i18n.t("userNotFound") });
-    }
+    // if (!utilisateurExist) {
+    //   return res.status(404).json({ error: i18n.t("userNotFound") });
+    // }
 
     const newStatutDocument = await prisma.statutDocument.create({
       data: {
         nom,
-        description,
-        id_Utilisateur: parseInt(id_Utilisateur),
+        description
+        // id_Utilisateur: parseInt(id_Utilisateur),
       },
     });
     res.status(201).json(newStatutDocument);
@@ -71,7 +71,7 @@ export const createStatutDocument = async (req, res) => {
 export const updateStatutDocument = async (req, res) => {
   try {
     const { id } = req.params;
-    const { nom, description, id_Utilisateur } = req.body;
+    const { nom, description } = req.body;
 
     if (!nom) {
       return res.status(400).json({ error: i18n.t("missingNameField") });
@@ -87,22 +87,22 @@ export const updateStatutDocument = async (req, res) => {
     }
 
     // Vérifier si l'utilisateur existe avant de l'ajouter
-    if (id_Utilisateur) {
-      const utilisateurExist = await prisma.utilisateur.findUnique({
-        where: { id: parseInt(id_Utilisateur) },
-      });
+    // if (id_Utilisateur) {
+    //   const utilisateurExist = await prisma.utilisateur.findUnique({
+    //     where: { id: parseInt(id_Utilisateur) },
+    //   });
 
-      if (!utilisateurExist) {
-        return res.status(404).json({ error: i18n.t("userNotFound") });
-      }
-    }
+    //   if (!utilisateurExist) {
+    //     return res.status(404).json({ error: i18n.t("userNotFound") });
+    //   }
+    // }
 
     const updatedStatutDocument = await prisma.statutDocument.update({
       where: { id: parseInt(id) },
       data: {
         nom,
-        description,
-        id_Utilisateur: id_Utilisateur ? parseInt(id_Utilisateur) : undefined,
+        description
+        // id_Utilisateur: id_Utilisateur ? parseInt(id_Utilisateur) : undefined,
       },
     });
     res.json(updatedStatutDocument);
