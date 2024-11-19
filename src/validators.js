@@ -65,37 +65,48 @@ const statutDocumentSchema = Joi.object({
   }),
 });
 
+const Joi = require('joi');
+
 const documentSchema = Joi.object({
   titre: Joi.string().max(100).required().messages({
-    'string.base': 'Le titre doit être une chaîne',
-    'string.empty': 'Le titre ne peut pas être vide',
-    'string.max': 'Le titre ne peut pas dépasser 100 caractères',
-    'any.required': 'Le titre est requis'
+    'string.base': 'Le titre doit être une chaîne de caractères.',
+    'string.empty': 'Le titre ne peut pas être vide.',
+    'string.max': 'Le titre ne peut pas dépasser 100 caractères.',
+    'any.required': 'Le titre est requis.',
   }),
-  description: Joi.string().max(255).optional(),
+  description: Joi.string().max(255).optional().messages({
+    'string.base': 'La description doit être une chaîne de caractères.',
+    'string.max': 'La description ne peut pas dépasser 255 caractères.',
+  }),
   date_depot: Joi.date().required().messages({
-    'date.base': 'La date de dépôt doit être valide',
-    'any.required': 'La date de dépôt est requise'
+    'date.base': 'La date de dépôt doit être une date valide.',
+    'any.required': 'La date de dépôt est requise.',
   }),
-  date_validation: Joi.date().optional(),
-  historique: Joi.string().max(20).optional(),
+  date_validation: Joi.date()
+    .optional()
+    .greater(Joi.ref('date_depot'))
+    .messages({
+      'date.base': 'La date de validation doit être une date valide.',
+      'date.greater': 'La date de validation doit être postérieure à la date de dépôt.',
+    }),
+  historique: Joi.string().max(20).optional().messages({
+    'string.base': 'L\'historique doit être une chaîne de caractères.',
+    'string.max': 'L\'historique ne peut pas dépasser 20 caractères.',
+  }),
   id_Utilisateur: Joi.number().integer().required().messages({
-    'number.base': 'L\'ID de l\'utilisateur doit être un entier',
-    'any.required': 'L\'ID de l\'utilisateur est requis'
+    'number.base': 'L\'ID de l\'utilisateur doit être un entier.',
+    'any.required': 'L\'ID de l\'utilisateur est requis.',
   }),
   id_TypeDocument: Joi.number().integer().required().messages({
-    'number.base': 'L\'ID du type de document doit être un entier',
-    'any.required': 'L\'ID du type de document est requis'
+    'number.base': 'L\'ID du type de document doit être un entier.',
+    'any.required': 'L\'ID du type de document est requis.',
   }),
   id_StatutDocument: Joi.number().integer().required().messages({
-    'number.base': 'L\'ID du statut de document doit être un entier',
-    'any.required': 'L\'ID du statut de document est requis'
+    'number.base': 'L\'ID du statut de document doit être un entier.',
+    'any.required': 'L\'ID du statut de document est requis.',
   }),
 });
 
 module.exports = {
-  utilisateurSchema,
-  typeDocumentSchema,
-  statutDocumentSchema,
   documentSchema,
 };

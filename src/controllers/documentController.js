@@ -41,34 +41,45 @@ export const getDocumentById = async (req, res) => {
   }
 };
 
-// Créer un nouveau document
 export const createDocument = async (req, res) => {
   try {
-    const { titre, description, date_depot, id_TypeDocument, id_StatutDocument } = req.body;
-    const fichier = req.file?.filename || null; // Si un fichier est uploadé, utilisez son nom, sinon `null`.
+    const { titre, description, date_depot, id_TypeDocument, id_StatutDocument, id_Utilisateur } = req.body;
 
-    // Vérification des champs obligatoires
-    if (!titre || !id_TypeDocument || !id_StatutDocument || !date_depot) {
-      return res.status(400).json({ error: i18n.t("missingFields") });
+    // Validation des types
+    if (!titre || typeof titre !== 'string') {
+      return res.status(400).json({ error: 'Le champ titre est obligatoire et doit être une chaîne.' });
+    }
+    if (!id_TypeDocument || isNaN(Number(id_TypeDocument))) {
+      return res.status(400).json({ error: 'Le champ id_TypeDocument est obligatoire et doit être un nombre.' });
+    }
+    if (!id_StatutDocument || isNaN(Number(id_StatutDocument))) {
+      return res.status(400).json({ error: 'Le champ id_StatutDocument est obligatoire et doit être un nombre.' });
     }
 
+    const fichier = req.file?.filename || null;
+
+    // Création du document
     const newDocument = await prisma.document.create({
       data: {
         titre,
         description,
-        date_depot: new Date(date_depot),
-        fichier, // Ajout du champ `fichier`
-        // utilisateur: { connect: { id: Number(id_Utilisateur) } },
+        date_depot: new Date(date_depot), // Assurez-vous que `date_depot` est une date valide
+        fichier,
         typeDocument: { connect: { id: Number(id_TypeDocument) } },
         statutDocument: { connect: { id: Number(id_StatutDocument) } },
+        utilisateur: id_Utilisateur ? { connect: { id: Number(id_Utilisateur) } } : undefined,
       },
     });
+    
+
     res.status(201).json(newDocument);
   } catch (error) {
-    console.error(i18n.t("createDocumentError"), error);
-    res.status(500).json({ error: i18n.t("createDocumentError"), details: error.message });
+    console.error('Error creating document:', error);
+    res.status(500).json({ error: 'Error creating document', details: error.message });
   }
 };
+
+
 
 // Mettre à jour un document
 export const updateDocument = async (req, res) => {

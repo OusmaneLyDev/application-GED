@@ -67,50 +67,42 @@ export const createStatutDocument = async (req, res) => {
   }
 };
 
-// Mettre à jour un statut de document
 export const updateStatutDocument = async (req, res) => {
   try {
     const { id } = req.params;
     const { nom, description } = req.body;
 
+    console.log("ID :", id);
+    console.log("Nom :", nom);
+    console.log("Description :", description);
+
     if (!nom) {
-      return res.status(400).json({ error: i18n.t("missingNameField") });
+      return res.status(400).json({ error: "Le champ 'nom' est requis." });
     }
 
-    // Vérification si le statut existe avant la mise à jour
     const statutExist = await prisma.statutDocument.findUnique({
       where: { id: parseInt(id) },
     });
 
     if (!statutExist) {
-      return res.status(404).json({ error: i18n.t("statusNotFound") });
+      return res.status(404).json({ error: "Statut introuvable." });
     }
-
-    // Vérifier si l'utilisateur existe avant de l'ajouter
-    // if (id_Utilisateur) {
-    //   const utilisateurExist = await prisma.utilisateur.findUnique({
-    //     where: { id: parseInt(id_Utilisateur) },
-    //   });
-
-    //   if (!utilisateurExist) {
-    //     return res.status(404).json({ error: i18n.t("userNotFound") });
-    //   }
-    // }
 
     const updatedStatutDocument = await prisma.statutDocument.update({
       where: { id: parseInt(id) },
-      data: {
-        nom,
-        description
-        // id_Utilisateur: id_Utilisateur ? parseInt(id_Utilisateur) : undefined,
-      },
+      data: { nom, description },
     });
+
+    console.log("Statut mis à jour :", updatedStatutDocument);
     res.json(updatedStatutDocument);
   } catch (error) {
-    console.error(i18n.t("updateStatusError"), error);
-    res.status(500).json({ error: i18n.t("updateStatusError"), details: error.message });
+    console.error("Erreur lors de la mise à jour du statut :", error);
+    res.status(500).json({ error: "Erreur interne du serveur.", details: error.message });
   }
 };
+
+
+
 
 // Supprimer un statut de document
 export const deleteStatutDocument = async (req, res) => {
