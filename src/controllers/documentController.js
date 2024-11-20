@@ -63,7 +63,7 @@ export const createDocument = async (req, res) => {
       data: {
         titre,
         description,
-        date_depot: new Date(date_depot), // Assurez-vous que `date_depot` est une date valide
+        date_depot: new Date(date_depot), 
         fichier,
         typeDocument: { connect: { id: Number(id_TypeDocument) } },
         statutDocument: { connect: { id: Number(id_StatutDocument) } },
@@ -86,7 +86,7 @@ export const updateDocument = async (req, res) => {
   try {
     const { id } = req.params;
     const { titre, description, date_depot, id_TypeDocument, id_StatutDocument } = req.body;
-    const fichier = req.file?.filename || null; // Si un fichier est uploadé, utilisez son nom, sinon `null`.
+    const fichier = req.file?.filename || null; 
 
     // Vérification des champs obligatoires
     if (!titre) {
@@ -102,7 +102,6 @@ export const updateDocument = async (req, res) => {
       statutDocument: { connect: { id: id_StatutDocument } },
     };
 
-    // Ajouter le champ `fichier` uniquement s'il est présent
     if (fichier) {
       updatedData.fichier = fichier;
     }
