@@ -1,5 +1,6 @@
 import prisma from '../config/prisma-client.js';
 import i18n from '../config/i18next.js';
+import path from 'path'
 
 export const getDocuments = async (req, res) => {
   try {
@@ -54,6 +55,21 @@ export const createDocument = async (req, res) => {
       return res.status(400).json({ error: i18n.t("missingStatutDocument") });
     }
 
+    if (req.files && req.files.photo) {
+      const uploadedFile = req.files.photo;
+      // const fileExtension = path.extname(uploadedFile.name);
+      const newFileName = `${new Date()}${fileExtension}`;
+   
+      try {
+        const uploadFolder = path.join('public', DEFAULT_UPLOAD_FOLDER);
+        await uploadedFile.mv(path.join(uploadFolder, newFileName));
+
+       Object.assign(data, { photo: newFileName });
+      } catch (err) {
+       console.error('Error uploading file:', err);
+      }
+     }
+
     const fichier = req.file?.filename || null;
     const data = {
       titre,
@@ -64,6 +80,7 @@ export const createDocument = async (req, res) => {
       statutDocument: { connect: { id: Number(id_StatutDocument) } },
       utilisateur: id_Utilisateur ? { connect: { id: Number(id_Utilisateur) } } : undefined,
     };
+    
 
     const newDocument = await prisma.document.create({ data });
     res.status(201).json(newDocument);

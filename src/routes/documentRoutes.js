@@ -8,12 +8,14 @@ import {
     getDocumentById, 
 } from '../controllers/documentController.js';
 import { authenticateToken } from '../middleware/authMiddleware.js';
+import validate from '../middleware/validateMiddleware.js';
+import { documentSchema } from '../validators/documentValidator.js';
 
 const router = express.Router();
 
 // Routes
 router.get('/',authenticateToken, getDocuments);
-router.post('/', createDocument);
+router.post('/',authenticateToken, validate(documentSchema), createDocument);
 router.put('/:id',authenticateToken, updateDocument);
 router.delete('/:id',authenticateToken, deleteDocument);
 
