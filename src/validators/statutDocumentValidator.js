@@ -20,5 +20,4 @@ const statutDocumentSchema = Joi.object({
   }),
 });
 
-// Exportation correcte du schéma
 export { statutDocumentSchema };

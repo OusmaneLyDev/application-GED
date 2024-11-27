@@ -12,11 +12,11 @@ import fileUpload from 'express-fileupload';
 import fs from 'fs';
 import path from 'path';
 import i18next from './src/config/i18next.js';
+import { downloadDocument } from './src/controllers/documentController.js';
 
 dotenv.config();
 
 const app = express();
-const prisma = new PrismaClient();
 const __dirname = path.resolve();
 
 app.use(cors());
@@ -61,7 +61,9 @@ i18next.changeLanguage('en').then(() => {
     });
 
     // Routes
+
     app.use('/api/', authRoutes);
+    app.get('/documents/:documentId', downloadDocument);
     app.use('/api/documents', documentRoutes);
     app.use('/api/utilisateurs', utilisateurRoutes);
     app.use('/api/types-document', typeDocumentRoutes);
