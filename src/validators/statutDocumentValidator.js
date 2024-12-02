@@ -1,23 +1,12 @@
-// statutDocumentValidator.js
-import Joi from 'joi';
+import { body } from 'express-validator';
 
-const statutDocumentSchema = Joi.object({
-  nom: Joi.string()
-    .max(20)
-    .pattern(/^[a-zA-ZÀ-ÿ\s'-]+$/)
-    .required()
-    .messages({
-      'string.base': 'Le nom doit être une chaîne',
-      'string.empty': 'Le nom ne peut pas être vide',
-      'string.max': 'Le nom ne peut pas dépasser 20 caractères',
-      'string.pattern.base': 'Le nom ne peut pas contenir de chiffres ou de caractères spéciaux',
-      'any.required': 'Le nom est requis',
-    }),
-  description: Joi.string().max(255).optional(),
-  id_Utilisateur: Joi.number().integer().required().messages({
-    'number.base': 'L\'ID de l\'utilisateur doit être un entier',
-    'any.required': 'L\'ID de l\'utilisateur est requis',
-  }),
-});
+export const statutDocumentValidator = [
+  body('nom')
+    .isString().withMessage('Le nom doit être une chaîne.')
+    .notEmpty().withMessage('Le nom est requis.')
+    .isLength({ max: 20 }).withMessage('Le nom ne peut pas dépasser 20 caractères.'),
 
-export { statutDocumentSchema };
+  body('description')
+    .optional()
+    .isString().withMessage('La description doit être une chaîne.'),
+];

@@ -11,9 +11,19 @@ const validateId = (id) => {
 export const getTypesDocument = async (req, res) => {
   try {
     const typesDocument = await prisma.typeDocument.findMany();
-    res.json(typesDocument);  
+    if (typesDocument.length === 0) {
+      return res.status(404).json({
+        message: "Aucun type de document trouvé.",
+        suggestion: "Ajoutez un nouveau type de document pour commencer."
+      });
+    }
+    res.json(typesDocument);
   } catch (error) {
-    res.status(500).json({ error: i18n.t('getTypesDocumentError') });
+    console.error("Erreur lors de la récupération des types de documents :", error);
+    res.status(500).json({
+      message: "Impossible de récupérer les types de documents pour le moment.",
+      details: error.message
+    });
   }
 };
 
@@ -24,20 +34,30 @@ export const getTypeDocumentById = async (req, res) => {
     const validId = validateId(id);
 
     if (!validId) {
-      return res.status(400).json({ error: i18n.t('invalidId') });
+      return res.status(400).json({
+        message: "Identifiant invalide.",
+        suggestion: "Assurez-vous que l'identifiant est un nombre positif."
+      });
     }
 
     const typeDocument = await prisma.typeDocument.findUnique({
       where: { id: validId }
     });
 
-    if (typeDocument) {
-      res.json(typeDocument);
-    } else {
-      res.status(404).json({ error: i18n.t('typeDocumentNotFound') });
+    if (!typeDocument) {
+      return res.status(404).json({
+        message: `Type de document avec l'ID ${id} introuvable.`,
+        suggestion: "Vérifiez l'identifiant ou ajoutez un nouveau type de document."
+      });
     }
+
+    res.json(typeDocument);
   } catch (error) {
-    res.status(500).json({ error: i18n.t('getTypeDocumentByIdError') });
+    console.error("Erreur lors de la récupération du type de document :", error);
+    res.status(500).json({
+      message: "Une erreur s'est produite lors de la récupération du type de document.",
+      details: error.message
+    });
   }
 };
 
@@ -46,23 +66,28 @@ export const createTypeDocument = async (req, res) => {
   try {
     const { nom, description } = req.body;
 
-    if (!nom || !description ) {
-      return res.status(400).json({ error: i18n.t('missingFields') });
+    if (!nom || !description) {
+      return res.status(400).json({
+        message: "Des champs obligatoires sont manquants.",
+        requiredFields: ["nom", "description"],
+        suggestion: "Fournissez un nom et une description pour créer un type de document."
+      });
     }
-    
 
     const newTypeDocument = await prisma.typeDocument.create({
-      data: {
-        nom,
-        description
-        // id_Utilisateur: parseInt(id_Utilisateur)
-      }
+      data: { nom, description }
     });
 
-    res.status(201).json(newTypeDocument);
+    res.status(201).json({
+      message: "Type de document créé avec succès.",
+      typeDocument: newTypeDocument
+    });
   } catch (error) {
-    console.error(i18n.t("createTypeDocumentError"), error);
-    res.status(500).json({ error: i18n.t("createTypeDocumentError"), details: error.message });
+    console.error("Erreur lors de la création d'un type de document :", error);
+    res.status(500).json({
+      message: "Impossible de créer le type de document pour le moment.",
+      details: error.message
+    });
   }
 };
 
@@ -73,16 +98,25 @@ export const updateTypeDocument = async (req, res) => {
     const { nom, description } = req.body;
 
     if (!id) {
-      return res.status(400).json({ error: i18n.t('invalidId') });
+      return res.status(400).json({
+        message: "Identifiant invalide.",
+        suggestion: "L'identifiant doit être un nombre positif."
+      });
     }
 
     if (!nom) {
-      return res.status(400).json({ error: i18n.t('missingName') });
+      return res.status(400).json({
+        message: "Le champ 'nom' est obligatoire.",
+        suggestion: "Fournissez un nom valide pour mettre à jour le type de document."
+      });
     }
 
     const existingTypeDocument = await prisma.typeDocument.findUnique({ where: { id } });
     if (!existingTypeDocument) {
-      return res.status(404).json({ error: i18n.t('documentNotFound') });
+      return res.status(404).json({
+        message: `Type de document avec l'ID ${id} introuvable.`,
+        suggestion: "Vérifiez l'identifiant ou créez un nouveau type de document."
+      });
     }
 
     const updatedTypeDocument = await prisma.typeDocument.update({
@@ -90,10 +124,16 @@ export const updateTypeDocument = async (req, res) => {
       data: { nom, description }
     });
 
-    res.json(updatedTypeDocument);
+    res.json({
+      message: "Type de document mis à jour avec succès.",
+      updatedTypeDocument
+    });
   } catch (error) {
     console.error("Erreur lors de la mise à jour du type de document :", error);
-    res.status(500).json({ error: i18n.t('updateTypeDocumentError'), details: error.message });
+    res.status(500).json({
+      message: "Une erreur s'est produite lors de la mise à jour du type de document.",
+      details: error.message
+    });
   }
 };
 
@@ -104,7 +144,10 @@ export const deleteTypeDocument = async (req, res) => {
     const validId = validateId(id);
 
     if (!validId) {
-      return res.status(400).json({ error: i18n.t('invalidId') });
+      return res.status(400).json({
+        message: "Identifiant invalide.",
+        suggestion: "L'identifiant doit être un nombre positif."
+      });
     }
 
     const documentsAssocies = await prisma.document.count({
@@ -115,7 +158,11 @@ export const deleteTypeDocument = async (req, res) => {
     });
 
     if (documentsAssocies > 0) {
-      return res.status(400).json({ error: i18n.t('deleteTypeDocumentErrorActiveDocuments') });
+      return res.status(400).json({
+        message: "Impossible de supprimer ce type de document.",
+        reason: "Il est encore associé à des documents actifs.",
+        suggestion: "Désactivez ou supprimez les documents associés avant de réessayer."
+      });
     }
 
     await prisma.typeDocument.delete({
@@ -125,6 +172,9 @@ export const deleteTypeDocument = async (req, res) => {
     res.status(204).send();
   } catch (error) {
     console.error("Erreur lors de la suppression du type de document :", error);
-    res.status(500).json({ error: i18n.t('deleteTypeDocumentError'), details: error.message });
+    res.status(500).json({
+      message: "Une erreur s'est produite lors de la suppression du type de document.",
+      details: error.message
+    });
   }
 };

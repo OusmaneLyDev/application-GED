@@ -11,7 +11,10 @@ export const getStatutsDocument = async (req, res) => {
     res.json(statutsDocument);
   } catch (error) {
     console.error(i18n.t("fetchStatusError"), error);
-    res.status(500).json({ error: i18n.t("fetchStatusError"), details: error.message });
+    res.status(500).json({
+      error: "Une erreur est survenue lors de la récupération des statuts de document. Veuillez réessayer plus tard.",
+      details: error.message,
+    });
   }
 };
 
@@ -25,13 +28,16 @@ export const getStatutDocumentById = async (req, res) => {
     });
 
     if (!statutDocument) {
-      return res.status(404).json({ error: i18n.t("statusNotFound") });
+      return res.status(404).json({ error: "Le statut demandé est introuvable." });
     }
 
     res.json(statutDocument);
   } catch (error) {
-    console.error(i18n.t("fetchStatusError"), error);
-    res.status(500).json({ error: i18n.t("fetchStatusError"), details: error.message });
+    console.error("Erreur lors de la récupération du statut par ID :", error);
+    res.status(500).json({
+      error: "Une erreur est survenue lors de la récupération du statut. Veuillez réessayer.",
+      details: error.message,
+    });
   }
 };
 
@@ -40,44 +46,38 @@ export const createStatutDocument = async (req, res) => {
   try {
     const { nom, description } = req.body;
 
-    // if (!nom || !id_Utilisateur) {
-    //   return res.status(400).json({ error: i18n.t("missingFields") });
-    // }
-
-    // Vérifier si l'utilisateur existe avant de créer un statut
-    // const utilisateurExist = await prisma.utilisateur.findUnique({
-    //   where: { id: parseInt(id_Utilisateur) },
-    // });
-
-    // if (!utilisateurExist) {
-    //   return res.status(404).json({ error: i18n.t("userNotFound") });
-    // }
+    if (!nom) {
+      return res.status(400).json({ error: "Le champ 'nom' est requis pour créer un statut." });
+    }
 
     const newStatutDocument = await prisma.statutDocument.create({
       data: {
         nom,
-        description
-        // id_Utilisateur: parseInt(id_Utilisateur),
+        description,
       },
     });
-    res.status(201).json(newStatutDocument);
+
+    res.status(201).json({
+      message: "Statut de document créé avec succès.",
+      statut: newStatutDocument,
+    });
   } catch (error) {
-    console.error(i18n.t("createStatusError"), error);
-    res.status(500).json({ error: i18n.t("createStatusError"), details: error.message });
+    console.error("Erreur lors de la création du statut :", error);
+    res.status(500).json({
+      error: "Impossible de créer le statut de document. Veuillez réessayer plus tard.",
+      details: error.message,
+    });
   }
 };
 
+// Mettre à jour un statut de document
 export const updateStatutDocument = async (req, res) => {
   try {
     const { id } = req.params;
     const { nom, description } = req.body;
 
-    console.log("ID :", id);
-    console.log("Nom :", nom);
-    console.log("Description :", description);
-
     if (!nom) {
-      return res.status(400).json({ error: "Le champ 'nom' est requis." });
+      return res.status(400).json({ error: "Le champ 'nom' est requis pour mettre à jour le statut." });
     }
 
     const statutExist = await prisma.statutDocument.findUnique({
@@ -85,7 +85,7 @@ export const updateStatutDocument = async (req, res) => {
     });
 
     if (!statutExist) {
-      return res.status(404).json({ error: "Statut introuvable." });
+      return res.status(404).json({ error: "Le statut demandé est introuvable." });
     }
 
     const updatedStatutDocument = await prisma.statutDocument.update({
@@ -93,16 +93,18 @@ export const updateStatutDocument = async (req, res) => {
       data: { nom, description },
     });
 
-    console.log("Statut mis à jour :", updatedStatutDocument);
-    res.json(updatedStatutDocument);
+    res.json({
+      message: "Statut de document mis à jour avec succès.",
+      statut: updatedStatutDocument,
+    });
   } catch (error) {
     console.error("Erreur lors de la mise à jour du statut :", error);
-    res.status(500).json({ error: "Erreur interne du serveur.", details: error.message });
+    res.status(500).json({
+      error: "Une erreur est survenue lors de la mise à jour du statut. Veuillez réessayer plus tard.",
+      details: error.message,
+    });
   }
 };
-
-
-
 
 // Supprimer un statut de document
 export const deleteStatutDocument = async (req, res) => {
@@ -114,15 +116,19 @@ export const deleteStatutDocument = async (req, res) => {
     });
 
     if (!statutDocument) {
-      return res.status(404).json({ error: i18n.t("statusNotFound") });
+      return res.status(404).json({ error: "Le statut demandé est introuvable." });
     }
 
     await prisma.statutDocument.delete({
       where: { id: parseInt(id) },
     });
-    res.json({ message: i18n.t("deleteStatusSuccess") });
+
+    res.json({ message: "Le statut de document a été supprimé avec succès." });
   } catch (error) {
-    console.error(i18n.t("deleteStatusError"), error);
-    res.status(500).json({ error: i18n.t("deleteStatusError"), details: error.message });
+    console.error("Erreur lors de la suppression du statut :", error);
+    res.status(500).json({
+      error: "Impossible de supprimer le statut de document. Le type est associé deja a un document.",
+      details: error.message,
+    });
   }
 };

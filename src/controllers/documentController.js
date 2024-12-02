@@ -126,7 +126,8 @@ export const updateDocument = async (req, res) => {
     const updatedData = {
       titre,
       description,
-      date_depot: date_depot ? new Date(date_depot) : undefined,
+      // Si la date_depot n'est pas fournie, on garde celle qui est déjà présente dans le document
+      date_depot: date_depot ? new Date(date_depot) : existingDocument.date_depot,
       typeDocument: id_TypeDocument ? { connect: { id: Number(id_TypeDocument) } } : undefined,
       statutDocument: id_StatutDocument ? { connect: { id: Number(id_StatutDocument) } } : undefined,
       utilisateur: id_Utilisateur ? { connect: { id: Number(id_Utilisateur) } } : undefined,
@@ -149,6 +150,7 @@ export const updateDocument = async (req, res) => {
     });
   }
 };
+
 
 export const deleteDocument = async (req, res) => {
   try {

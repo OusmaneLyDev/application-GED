@@ -1,53 +1,22 @@
-import Joi from 'joi';
+import { body } from 'express-validator';
 
-const utilisateurSchema = Joi.object({
-  nom: Joi.string()
-    .max(50)
-    .pattern(/^[a-zA-ZÀ-ÿ\s'-]+$/)
-    .required()
-    .messages({
-      'string.base': 'Le nom doit être une chaîne.',
-      'string.empty': 'Le nom ne peut pas être vide.',
-      'string.max': 'Le nom ne peut pas dépasser 50 caractères.',
-      'string.pattern.base': 'Le nom ne peut pas contenir de chiffres ou de caractères spéciaux.',
-      'any.required': 'Le nom est requis.',
-    }),
-  email: Joi.string()
-    .email({ minDomainSegments: 2, tlds: { allow: ['com', 'net', 'org', 'fr'] } })
-    .max(50)
-    .required()
-    .messages({
-      'string.base': 'L\'email doit être une chaîne.',
-      'string.email': 'L\'email doit être valide.',
-      'string.empty': 'L\'email ne peut pas être vide.',
-      'string.max': 'L\'email ne peut pas dépasser 50 caractères.',
-      'any.required': 'L\'email est requis.',
-    }),
-  mot_de_passe: Joi.string()
-    .min(8)
-    .max(50)
-    .pattern(/^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%^&*])/)
-    .required()
-    .messages({
-      'string.base': 'Le mot de passe doit être une chaîne.',
-      'string.empty': 'Le mot de passe ne peut pas être vide.',
-      'string.min': 'Le mot de passe doit contenir au moins 8 caractères.',
-      'string.max': 'Le mot de passe ne peut pas dépasser 50 caractères.',
-      'string.pattern.base': 'Le mot de passe doit contenir une majuscule, une minuscule, un chiffre et un caractère spécial.',
-      'any.required': 'Le mot de passe est requis.',
-    }),
-  role: Joi.string()
-    .valid('Administrateur', 'Gestionnaire RH')
-    .required()
-    .messages({
-      'string.base': 'Le rôle doit être une chaîne.',
-      'string.empty': 'Le rôle ne peut pas être vide.',
-      'any.only': 'Le rôle doit être soit "Administrateur" soit "Gestionnaire RH".',
-      'any.required': 'Le rôle est requis.',
-    }),
-  date_creation: Joi.date()
-    .default(() => new Date())
-    .optional(),
-});
+export const utilisateurValidator = [
+    body('nom')
+    .isString().withMessage('Le nom doit être une chaîne.')
+    .notEmpty().withMessage('Le nom est requis.')
+    .isLength({ max: 100 }).withMessage('Le nom ne peut pas dépasser 100 caractères.')
+    .matches(/^[a-zA-ZÀ-ÿ\s-]+$/).withMessage('Le nom ne doit contenir que des lettres, espaces ou tirets.'),
+  
 
-export { utilisateurSchema };
+  body('email')
+    .isEmail().withMessage('L\'email doit être valide.')
+    .isLength({ max: 100 }).withMessage('L\'email ne peut pas dépasser 100 caractères.'),
+
+  body('mot_de_passe')
+    .isString().withMessage('Le mot de passe doit être une chaîne.')
+    .isLength({ min: 8, max: 100 }).withMessage('Le mot de passe doit contenir entre 8 et 100 caractères.'),
+
+  body('role')
+    .isString().withMessage('Le rôle doit être une chaîne.')
+    .isIn(['Administrateur', 'Gestionnaire RH']).withMessage('Le rôle doit être "Administrateur" ou "Gestionnaire RH".'),
+];
