@@ -12,9 +12,9 @@ export const utilisateurValidator = [
     .isEmail().withMessage('L\'email doit être valide.')
     .isLength({ max: 100 }).withMessage('L\'email ne peut pas dépasser 100 caractères.'),
 
-  body('mot_de_passe')
-    .isString().withMessage('Le mot de passe doit être une chaîne.')
-    .isLength({ min: 8, max: 100 }).withMessage('Le mot de passe doit contenir entre 8 et 100 caractères.'),
+  // body('mot_de_passe')
+  //   .isString().withMessage('Le mot de passe doit être une chaîne.')
+  //   .isLength({ min: 8, max: 100 }).withMessage('Le mot de passe doit contenir entre 8 et 100 caractères.'),
 
   body('role')
     .isString().withMessage('Le rôle doit être une chaîne.')
